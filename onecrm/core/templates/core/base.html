@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://cdn.tailwindcss.com"></script>
+
+        <title>{% block title %}{% endblock %}</title>
+    </head>
+    <body>
+        <nav class="flex justify-between py-6 px-6 bg-blue-500">
+            <a href="/"class="text-bold text-white">ONECRM</a>
+
+            <div class="space-x-3">
+                <a href="{% url 'about' %}" class="text-white ">About</a>
+
+                {% if request.user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="text-white py-4 px-6 bg-blue-900 rounded-xl"> Dashboard </a>
+                    <a href="{% url 'login' %}" class="text-white py-4 px-6 bg-gray-600 rounded-xl"> Log Out </a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="text-white py-4 px-6 bg-blue-900 rounded-xl"> Log In </a>
+                
+                    <a href="{% url 'signup' %}" class="text-white py-4 px-6 bg-blue-900 rounded-xl"> Sign Up </a>
+
+                {% endif %}
+
+                
+            </div>
+
+        </nav>
+
+        {% block content %}
+        {% endblock %}
+
+        <footer class="py-7 text-center bg-gray-300">
+            <p class="text-l">Copyright(C)2023 ONECRM</p>
+        </footer>
+    </body>
+</html>
