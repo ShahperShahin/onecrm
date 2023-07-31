@@ -3,12 +3,12 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import AddLeadForm
 from .models import Lead
- 
+from client.models import Client 
 
 
 @login_required
 def leads_list(request):
-    leads = Lead.objects.filter(created_by=request.user)
+    leads = Lead.objects.filter(created_by=request.user, converted_to_client=False)
 
 
     return render(request, 'lead/leads_list.html', {
@@ -28,7 +28,7 @@ def leads_detail(request, pk):
 def leads_delete(request, pk):
     lead = get_object_or_404(Lead, created_by=request.user, pk=pk)
     lead.delete()
-    messages.success(request, "Leads has been deleted succesfully")
+    messages.success(request, "Lead has been deleted succesfully")
 
     return redirect('leads_list')
 
@@ -43,7 +43,7 @@ def leads_edit(request, pk):
         if form.is_valid():
             form.save()
 
-            messages.success(request, "Leads has been edited succesfully")
+            messages.success(request, "Lead has been edited succesfully")
 
             return redirect('leads_list')
         
@@ -64,7 +64,7 @@ def add_lead(request):
             lead = form.save(commit=False)
             lead.created_by = request.user
             lead.save()
-            messages.success(request, "Leads has been created succesfully")
+            messages.success(request, "Lead has been created succesfully")
 
             return redirect('leads_list')
         
@@ -74,3 +74,20 @@ def add_lead(request):
     return render(request, 'lead/add_lead.html',{
         'form' : form
     })
+
+@login_required
+def convert_to_client(request, pk):
+    lead = get_object_or_404(Lead, created_by=request.user, pk=pk)
+
+    client = Client.objects.create(
+        name = lead.name,
+        email = lead.email,
+        description = lead.description,
+        created_by = request.user
+    )
+
+    lead.converted_to_client = True
+    lead.save()
+    messages.success(request, "Lead has been converted to client succesfully")
+
+    return redirect(leads_list)
