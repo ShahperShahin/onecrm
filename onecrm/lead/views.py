@@ -1,10 +1,25 @@
+from typing import Any
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models.query import QuerySet
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import AddLeadForm
 from .models import Lead
 from client.models import Client 
 from team.models import Team
+from django.views.generic import ListView
+
+
+
+class LeadListview(ListView):
+    model = Lead
+    
+    
+    def get_queryset(self):
+        queryset =  super(LeadListview, self).get_queryset()
+        queryset = queryset.filter(created_by=self.request.user, converted_to_client=False)
+        return queryset
+    
 
 
 @login_required
@@ -31,7 +46,7 @@ def leads_delete(request, pk):
     lead.delete()
     messages.success(request, "Lead has been deleted succesfully")
 
-    return redirect('leads_list')
+    return redirect('leads:list')
 
 
 @login_required
@@ -46,7 +61,7 @@ def leads_edit(request, pk):
 
             messages.success(request, "Lead has been edited succesfully")
 
-            return redirect('leads_list')
+            return redirect('leads:list')
         
     else:
         form = AddLeadForm(instance=lead)
@@ -69,7 +84,7 @@ def add_lead(request):
             lead.save()
             messages.success(request, "Lead has been created succesfully")
 
-            return redirect('leads_list')
+            return redirect('leads:list')
         
 
     else:
@@ -97,4 +112,4 @@ def convert_to_client(request, pk):
     lead.save()
     messages.success(request, "Lead has been converted to client succesfully")
 
-    return redirect(leads_list)
+    return redirect('leads:list')
